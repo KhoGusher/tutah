@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class UIHelper {
   // STRING
-  static final String createAccount = "Create\nAccount";
+  static const String createAccount = "Create\nAccount";
   static final String welcomeBack = "Welcome\nBack";
   static final String name = "Name";
   static final String hello = "Hello";

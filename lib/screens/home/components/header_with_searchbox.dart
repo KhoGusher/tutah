@@ -9,26 +9,28 @@ class HeaderWithSearchBox extends StatelessWidget {
   //   required this.size,
   // }) : super(key: key);
 
-  const HeaderWithSearchBox({ super.key, required this.size});
+  final Function(String) onSearchQueryChanged;
+
+  const HeaderWithSearchBox({ super.key, required this.size, required this.onSearchQueryChanged,});
 
   final Size size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: kDefaultPadding * 2.5),
+      margin: const EdgeInsets.only(bottom: kDefaultPadding * 2.5),
       // It will cover 20% of our total height
       height: size.height * 0.2,
       child: Stack(
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               left: kDefaultPadding,
               right: kDefaultPadding,
               bottom: 36 + kDefaultPadding,
             ),
             height: size.height * 0.2 - 27,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: kPrimaryColor,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(36),
@@ -43,7 +45,7 @@ class HeaderWithSearchBox extends StatelessWidget {
                       color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                Image.asset("assets/images/logo.png")
+                Image.asset("assets/images/malawi-logo.png")
               ],
             ),
           ),
@@ -53,8 +55,8 @@ class HeaderWithSearchBox extends StatelessWidget {
             right: 0,
             child: Container(
               alignment: Alignment.center,
-              margin: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-              padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+              margin: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
+              padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
               height: 54,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -71,9 +73,15 @@ class HeaderWithSearchBox extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        print('values-------------------');
+                        print(value);
+
+                        onSearchQueryChanged(value);
+
+                      },
                       decoration: InputDecoration(
-                        hintText: "Search",
+                        hintText: "Type program name to search",
                         hintStyle: TextStyle(
                           color: kPrimaryColor.withOpacity(0.5),
                         ),

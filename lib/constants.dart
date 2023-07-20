@@ -7,3 +7,12 @@ const kBackgroundColor = Color(0xFFF9F8FD);
 
 const double kDefaultPadding = 20.0;
 
+// const String baseUrl = 'https://nkhokwe.herokuapp.com';
+
+// https://nkhokwe.herokuapp.com/
+// const String baseUrl = 'http://172.20.10.4:3001';
+
+const baseUrl = "https://firesoft-backend.herokuapp.com";
+
+
+

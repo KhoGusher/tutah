@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:tutah/screens/home/home_screen.dart';
+import 'package:http/http.dart' as http;
 
 import '../../api/api.dart';
+import '../../constants.dart';
 import '../../utils.dart';
 
 class Login extends StatefulWidget {
@@ -21,6 +22,7 @@ class _LoginState extends State<Login> {
   final _storage = const FlutterSecureStorage();
 
   bool loader = false;
+  String error = '';
 
   bool hidePassword = true;
 
@@ -40,66 +42,53 @@ class _LoginState extends State<Login> {
   final _formkey = GlobalKey<FormState>();
 
   void _fetchData(BuildContext context) async {
-    // login
-    //
-    var userData = {
+
+    http.Response? response; // Declare the response variable with a default value
+
+    try {
+      response = await http.post(
+          Uri.parse('$baseUrl/api/tutah/admin/tutah/sigin-in'),
+          headers: {
+            "Accept": "application/json",
+          },
+      body: {
       'email': _emailController.text,
       'password': _passwordController.text
-      // 'phone': '+265999355983',
-      // 'token':
-      //     'gvSTFaGuS4Wrwv9iZ9pKLq:APA91bFhWXyJ1Tv2ljEc1PDwoeyxuTlzzdcl0tbUjDrOZQ1tBtjQmKcn4gQDDzFmm3vUecyDqvIpgmH9fUGgH5RIqx2ieK2_4gqdlIqqwY-BMQmIbAjccua1KW-IwCnuxs154-SzfUPE'
-    };
+      });
 
-    var response = await CallApi().prePostData(userData, 'login');
+      print(response.statusCode);
+      print(response.body);
 
-    if (!mounted) return;
+      if (response.statusCode == 200) {
+        var res = jsonDecode(response.body);
 
-    print('----------resp--------------');
-    print(response.statusCode);
-    // Failed host lookup: 'iot.mw'
-    //Server response into variable
+        print(res['token']);
+        const storage = FlutterSecureStorage();
 
-    if (response.statusCode == 201) {
-      var msg = jsonDecode(response.body);
-
-      //   {status: 1, data: {access_token: 3|lmYFEFU59rOBelggczWBSUaQn3MuqlDeScgMO3RL,
-      // token_type: Bearer, next_page: home_page}, msg: Login Successful}
-      print(msg);
-      // const token = FlutterSecureStorage();
-      // const tok = '12|w4acJ2LHbEjszIj13W3x7jFFhj543ZIxsctoj1d5';
-
-      await _storage.write(key: 'token', value: msg['data']['access_token']);
+        await storage.write(key: 'token', value: res['token']);
 
         Navigator.pushNamed(
-        context,
-        'login'
-      );
+            context,
+            'home'
+        );
 
-    } else {
-      var msg = jsonDecode(response.body);
-      print(msg);
-      print('dim--------------------------');
-      //Show Error Message Dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(msg['msg']),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
+      } else {
+        var res = jsonDecode(response.body);
 
-                  setState(() {
-                    loader = false;
-                  });
-                },
-              ),
-            ],
-          );
-        },
-      );
+        setState(() {
+          loader = false;
+          error = res['message'];
+        });
+
+
+        }
+
+    } catch (error) {
+      print(error);
+      setState(() {
+        loader = false;
+      });
+
     }
   }
 
@@ -108,7 +97,7 @@ class _LoginState extends State<Login> {
     // ScreenUtil._instance.init(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.blue,
       body: Stack(
         children: <Widget>[
           Positioned(
@@ -117,7 +106,7 @@ class _LoginState extends State<Login> {
             child: SizedBox(
               height: 250,
               child: Container(
-                decoration:  BoxDecoration(
+                decoration:  const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
@@ -153,42 +142,42 @@ class _LoginState extends State<Login> {
                           color: UIHelper.WHITE,
                         ),
                       ),
+                      const SizedBox(height: 5,),
+                      error.isNotEmpty ? Text(error, style: TextStyle(color: Colors.red, fontSize: 17),): Container(),
                       const SizedBox(height: 30),
-                      Container(
-                        child: TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(0, 14, 20, 10),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white)),
-                            errorBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.red,
-                                )),
-                            focusedErrorBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.red,
-                                )),
-                            //labelText: 'Password',
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                fontSize: 15, color: Color(0xFF5F5B54)),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(0, 14, 20, 10),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (val) {
-                            if (val!.isEmpty) {
-                              return "Field can not be blank";
-                            } else if (!RegExp(
-                                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-                                .hasMatch(val)) {
-                              return "Enter a valid email address";
-                            }
-                            return null;
-                          },
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white)),
+                          errorBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                              )),
+                          focusedErrorBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                              )),
+                          //labelText: 'Password',
+                          hintText: "Email",
+                          hintStyle: TextStyle(
+                              fontSize: 15, color: Color(0xFF5F5B54)),
                         ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (val) {
+                          if (val!.isEmpty) {
+                            return "Field can not be blank";
+                          } else if (!RegExp(
+                              r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
+                              .hasMatch(val)) {
+                            return "Enter a valid email address";
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 20),
                       Container(

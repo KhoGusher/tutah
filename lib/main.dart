@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tutah/screens/admin/file_upload/upload_csv.dart';
 import 'package:tutah/screens/courses_etc.dart';
 import 'package:tutah/screens/home/faculty_department.dart';
 import 'package:tutah/screens/home/home_screen.dart';
@@ -28,24 +29,16 @@ class MyApp extends StatelessWidget {
         textTheme: Theme.of(context).textTheme.apply(bodyColor: kTextColor),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const HomeScreen(),
+      home:  const HomeScreen(),
       routes: {
         'home': (context) => const HomeScreen(),
         'login': (context) => const Login(),
-        'facultyDept': (context) => FacultyList(),
-        'programList': (context) => ProgramListScreen(),
-        'courses': (context) => ProgramDetailsScreen(
-          Program(
-            'Program 1',
-            'Description of Program 1',
-            'Requirement for Program 1',
-            'assets/images/image_1.png',
-            5,
-            60,
-            ['Microsoft Corp', 'Intel'],
-            ['Role Model 1', 'Role Model 2', 'Role Model 3'],
-          ),
-        )
+        'facultyDept': (context) => const FacultyList(),
+        'programList': (context) => const ProgramListScreen(),
+        'upload': (context) => const UploadCSV(),
+        'courses': (context) => const ProgramDetailsScreen(),
+
+
       },
     );
   }
