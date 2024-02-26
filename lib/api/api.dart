@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class CallApi {
-  final String _url = 'http://iot.mw/attendance/api/';
+  final String _url = 'http://base/api/';
 
   prePostData(userData, apiUrl) async {
     try {
